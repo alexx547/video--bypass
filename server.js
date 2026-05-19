@@ -14,19 +14,31 @@ app.post("/upload", upload.single("video"), (req, res) => {
   const output = "output.mp4";
 
   const cmd = `
-ffmpeg -i ${input} \
--r 60 -vsync cfr \
--c:v libx264 -profile:v high -level 4.2 \
--preset veryfast \
--g 120 -keyint_min 120 -sc_threshold 0 \
--b:v 16M -maxrate 20M -bufsize 30M \
+ffmpeg -y -i ${input} \
+-r 60 \
+-vsync cfr \
+-c:v libx264 \
+-preset ultrafast \
+-profile:v high \
+-level 4.2 \
+-g 120 \
+-keyint_min 120 \
+-sc_threshold 0 \
+-b:v 16M \
+-maxrate 20M \
+-bufsize 30M \
 -pix_fmt yuv420p \
--c:a aac -b:a 128k \
--movflags +faststart ${output}
+-c:a aac \
+-b:a 128k \
+-movflags +faststart \
+${output}
 `;
 
   exec(cmd, (err) => {
-    if (err) return res.send("Error");
+    if (err) {
+      console.error(err);
+      return res.status(500).send("Error processing video");
+    }
 
     res.download(output, () => {
       fs.unlinkSync(input);
@@ -35,4 +47,6 @@ ffmpeg -i ${input} \
   });
 });
 
-app.listen(3000, () => console.log("RUNNING"));
+app.listen(3000, () => {
+  console.log("Server running on port 3000");
+});
