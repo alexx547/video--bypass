@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Video Upload Tool</title>
+  <style>
+    body {
+      font-family: Arial;
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 30px;
+    }
+
+    input, button {
+      margin: 10px;
+      padding: 12px;
+      width: 80%;
+      max-width: 300px;
+    }
+
+    button {
+      background: #00a8ff;
+      border: none;
+      color: white;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    #status {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <h2>Subir Video</h2>
+
+  <input type="file" id="video" accept="video/*">
+  <br>
+
+  <button onclick="uploadVideo()">Procesar</button>
+
+  <p id="status"></p>
+
+  <script>
+    async function uploadVideo() {
+      const file = document.getElementById("video").files[0];
+      const status = document.getElementById("status");
+
+      if (!file) {
+        status.innerText = "Selecciona un video";
+        return;
+      }
+
+      status.innerText = "Subiendo...";
+
+      const formData = new FormData();
+      formData.append("video", file);
+
+      try {
+        const res = await fetch("https://video-bypass-1.onrender.com/upload", {
+          method: "POST",
+          body: formData
+        });
+
+        status.innerText = "Procesando...";
+
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "video.mp4";
+        a.click();
+
+        status.innerText = "Listo ✔";
+
+      } catch (err) {
+        status.innerText = "Error al procesar";
+      }
+    }
+  </script>
+
+</body>
+</html>
